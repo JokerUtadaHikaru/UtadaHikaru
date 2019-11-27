@@ -1,0 +1,62 @@
+package cn.utadahikaru.uh.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import cn.utadahikaru.uh.entity.User;
+import cn.utadahikaru.uh.service.InUserService;
+import cn.utadahikaru.uh.util.JsonResult;
+
+/**
+ * 用于处理用户相关操作的控制器类
+ * 
+ * @author UtadaHikaru
+ *
+ */
+@RestController
+@RequestMapping("users")
+public class UserController extends BaseControllerException {
+
+	@Autowired
+	InUserService inUserService;
+
+	/**
+	 * 用户注册
+	 * 
+	 * @param user
+	 *            用户数据
+	 * @return 响应结果
+	 */
+	@RequestMapping("reg")
+	public JsonResult<Void> reg(User user, String code) {
+
+		inUserService.reg(user, code);
+
+		return new JsonResult<>(OK);
+	}
+
+	/**
+	 * 用户登录
+	 * 
+	 * @param username
+	 *            用户名
+	 * @param password
+	 *            密码
+	 * @return 响应结果:包含uid与username
+	 */
+	@RequestMapping("login")
+	public JsonResult<User> login(String username, String password, HttpSession session) {
+
+		User result = inUserService.login(username, password);
+
+		// 将登录信息保存在Session中,以便下次使用
+		session.setAttribute("uid", result.getUid());
+		session.setAttribute("username", result.getUsername());
+
+		return new JsonResult<>(OK, result);
+	}
+
+}
